@@ -1,10 +1,11 @@
 const express = require("express");
 const Request = require("../models/Request.js");
+const authMiddleware = require("../middleware/auth");
 
-const router = express.Router();
+const requestsRouter = express.Router();
 
 // Создание новой заявки
-router.post("/", async (req, res) => {
+requestsRouter.post("/", async (req, res) => {
   try {
     const newRequest = new Request(req.body);
     await newRequest.save();
@@ -14,4 +15,13 @@ router.post("/", async (req, res) => {
   }
 });
 
-module.exports = router;
+requestsRouter.get("/", authMiddleware, async (req, res) => {
+  try {
+    const requests = await Request.find();
+    res.json(requests);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+module.exports = requestsRouter;

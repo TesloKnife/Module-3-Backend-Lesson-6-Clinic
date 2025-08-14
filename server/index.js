@@ -2,15 +2,31 @@ const express = require("express");
 const mongoose = require("mongoose");
 const chalk = require("chalk");
 const cors = require("cors");
-const router = require("./routes/requests.js");
+const cookieParser = require("cookie-parser");
+const requestsRouter = require("./routes/requests.js");
+const authRouter = require("./routes/auth.js");
 
 const port = 3000;
 const app = express();
-app.use(cors());
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Точный адрес фронтенда
+    credentials: true, // Разрешаем передачу кук
+    methods: ["GET", "POST", "PUT", "DELETE"], // Разрешенные методы
+    allowedHeaders: ["Content-Type", "Authorization"], // Разрешенные заголовки
+  })
+);
 app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 
 // Подключаем роуты
-app.use("/requests", router);
+app.use("/requests", requestsRouter);
+app.use("/auth", authRouter);
 
 // Подключение к БД и запуск сервера
 mongoose
