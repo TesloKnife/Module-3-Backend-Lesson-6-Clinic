@@ -13,27 +13,33 @@ const RequestsTableContainer = ({ className }) => {
 	// Сортировка
 	const [sortField, setSortField] = useState('createdAt');
 	const [sortOrder, setSortOrder] = useState('desc');
+	// Поиск
+	const [searchTerm, setSearchTerm] = useState('');
 
 	useEffect(() => {
-		const fetchRequests = async () => {
-			try {
-				const response = await getRequests({
-					page: currentPage,
-					limit: perPage,
-					sort: sortField,
-					order: sortOrder,
-				});
-				setRequests(response.data);
-				setTotalPages(response.totalPages);
-			} catch (err) {
-				setError('Не удалось загрузить заявки');
-			} finally {
-				setLoading(false);
-			}
-		};
+		const timer = setTimeout(() => {
+			const fetchRequests = async () => {
+				try {
+					const response = await getRequests({
+						page: currentPage,
+						limit: perPage,
+						sort: sortField,
+						order: sortOrder,
+						search: searchTerm,
+					});
+					setRequests(response.data);
+					setTotalPages(response.totalPages);
+				} catch (err) {
+					setError('Не удалось загрузить заявки');
+				} finally {
+					setLoading(false);
+				}
+			};
+			fetchRequests();
+		}, 500);
 
-		fetchRequests();
-	}, [currentPage, sortField, sortOrder]);
+		return () => clearTimeout(timer);
+	}, [searchTerm, sortField, sortOrder, currentPage]);
 
 	const handleSort = (field) => {
 		if (sortField === field) {
@@ -50,6 +56,15 @@ const RequestsTableContainer = ({ className }) => {
 	return (
 		<div className={className}>
 			<h2>Список заявок</h2>
+
+			<div className="search-container">
+				<input
+					type="text"
+					placeholder="Поиск по ФИО или телефону..."
+					value={searchTerm}
+					onChange={(e) => setSearchTerm(e.target.value)}
+				/>
+			</div>
 
 			<div className="table-container">
 				<table>
@@ -115,6 +130,33 @@ export const RequestTable = styled(RequestsTableContainer)`
 	h2 {
 		color: #2c3e50;
 		margin-bottom: 1.5rem;
+	}
+
+	.search-container {
+		margin-bottom: 1.5rem;
+		padding-right: 2rem;
+
+		input {
+			width: 100%;
+			padding: 0.75rem 1rem;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			font-size: 1rem;
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+			transition:
+				border-color 0.2s,
+				box-shadow 0.2s;
+
+			&:focus {
+				outline: none;
+				border-color: #3498db;
+				box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+			}
+
+			&::placeholder {
+				color: #95a5a6;
+			}
+		}
 	}
 
 	.table-container {

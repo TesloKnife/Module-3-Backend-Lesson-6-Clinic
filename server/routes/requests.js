@@ -22,15 +22,25 @@ requestsRouter.get("/", authMiddleware, async (req, res) => {
       limit = 10,
       sort = "createdAt",
       order = "desc",
+      search = "",
     } = req.query;
     const skip = (page - 1) * limit;
 
+    // Поиск
+    const query = {};
+    if (search) {
+      query.$or = [
+        { fullName: { $regex: search, $options: "i" } },
+        { phone: { $regex: search, $options: "i" } },
+      ];
+    }
+
     const [requests, total] = await Promise.all([
-      Request.find()
+      Request.find(query)
         .sort({ [sort]: order === "asc" ? 1 : -1 })
         .skip(skip)
         .limit(limit),
-      Request.countDocuments(),
+      Request.countDocuments(query),
     ]);
 
     res.json({
