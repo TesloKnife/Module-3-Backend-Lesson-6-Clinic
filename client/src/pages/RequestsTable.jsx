@@ -6,9 +6,13 @@ const RequestsTableContainer = ({ className }) => {
 	const [requests, setRequests] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState('');
+	// Пагинация
 	const [currentPage, setCurrentPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
 	const perPage = 10;
+	// Сортировка
+	const [sortField, setSortField] = useState('createdAt');
+	const [sortOrder, setSortOrder] = useState('desc');
 
 	useEffect(() => {
 		const fetchRequests = async () => {
@@ -16,8 +20,9 @@ const RequestsTableContainer = ({ className }) => {
 				const response = await getRequests({
 					page: currentPage,
 					limit: perPage,
+					sort: sortField,
+					order: sortOrder,
 				});
-				console.log(response);
 				setRequests(response.data);
 				setTotalPages(response.totalPages);
 			} catch (err) {
@@ -28,7 +33,16 @@ const RequestsTableContainer = ({ className }) => {
 		};
 
 		fetchRequests();
-	}, [currentPage]);
+	}, [currentPage, sortField, sortOrder]);
+
+	const handleSort = (field) => {
+		if (sortField === field) {
+			setSortOrder((order) => (order === 'asc' ? 'desc' : 'asc'));
+		} else {
+			setSortField(field);
+			setSortOrder('asc');
+		}
+	};
 
 	if (loading) return <div className={className}>Загрузка...</div>;
 	if (error) return <div className={className}>{error}</div>;
@@ -41,10 +55,22 @@ const RequestsTableContainer = ({ className }) => {
 				<table>
 					<thead>
 						<tr>
-							<th>ФИО</th>
-							<th>Телефон</th>
+							<th onClick={() => handleSort('fullName')}>
+								ФИО{' '}
+								{sortField === 'fullName' &&
+									(sortOrder === 'asc' ? '↑' : '↓')}
+							</th>
+							<th onClick={() => handleSort('phone')}>
+								Телефон{' '}
+								{sortField === 'phone' &&
+									(sortOrder === 'asc' ? '↑' : '↓')}
+							</th>
 							<th>Проблема</th>
-							<th>Дата создания</th>
+							<th onClick={() => handleSort('createdAt')}>
+								Дата{' '}
+								{sortField === 'createdAt' &&
+									(sortOrder === 'asc' ? '↑' : '↓')}
+							</th>
 						</tr>
 					</thead>
 					<tbody>

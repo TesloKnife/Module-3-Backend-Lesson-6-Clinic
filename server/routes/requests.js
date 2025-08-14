@@ -17,11 +17,19 @@ requestsRouter.post("/", async (req, res) => {
 
 requestsRouter.get("/", authMiddleware, async (req, res) => {
   try {
-    const { page = 1, limit = 10 } = req.query;
+    const {
+      page = 1,
+      limit = 10,
+      sort = "createdAt",
+      order = "desc",
+    } = req.query;
     const skip = (page - 1) * limit;
 
     const [requests, total] = await Promise.all([
-      Request.find().skip(skip).limit(limit),
+      Request.find()
+        .sort({ [sort]: order === "asc" ? 1 : -1 })
+        .skip(skip)
+        .limit(limit),
       Request.countDocuments(),
     ]);
 
