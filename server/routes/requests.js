@@ -17,8 +17,19 @@ requestsRouter.post("/", async (req, res) => {
 
 requestsRouter.get("/", authMiddleware, async (req, res) => {
   try {
-    const requests = await Request.find();
-    res.json(requests);
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+
+    const [requests, total] = await Promise.all([
+      Request.find().skip(skip).limit(limit),
+      Request.countDocuments(),
+    ]);
+
+    res.json({
+      requests,
+      total,
+      totalPages: Math.ceil(total / limit),
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

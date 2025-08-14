@@ -6,13 +6,20 @@ const RequestsTableContainer = ({ className }) => {
 	const [requests, setRequests] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState('');
+	const [currentPage, setCurrentPage] = useState(1);
+	const [totalPages, setTotalPages] = useState(1);
+	const perPage = 10;
 
 	useEffect(() => {
 		const fetchRequests = async () => {
 			try {
-				const data = await getRequests();
-				setRequests(data);
-				console.log(data);
+				const response = await getRequests({
+					page: currentPage,
+					limit: perPage,
+				});
+				console.log(response);
+				setRequests(response.data);
+				setTotalPages(response.totalPages);
 			} catch (err) {
 				setError('Не удалось загрузить заявки');
 			} finally {
@@ -21,7 +28,7 @@ const RequestsTableContainer = ({ className }) => {
 		};
 
 		fetchRequests();
-	}, []);
+	}, [currentPage]);
 
 	if (loading) return <div className={className}>Загрузка...</div>;
 	if (error) return <div className={className}>{error}</div>;
@@ -51,6 +58,26 @@ const RequestsTableContainer = ({ className }) => {
 						))}
 					</tbody>
 				</table>
+			</div>
+
+			<div className="pagination">
+				<button
+					disabled={currentPage === 1}
+					onClick={() => setCurrentPage((p) => p - 1)}
+				>
+					Назад
+				</button>
+
+				<span>
+					Страница {currentPage} из {totalPages}
+				</span>
+
+				<button
+					disabled={currentPage === totalPages}
+					onClick={() => setCurrentPage((p) => p + 1)}
+				>
+					Вперед
+				</button>
 			</div>
 		</div>
 	);
@@ -90,5 +117,27 @@ export const RequestTable = styled(RequestsTableContainer)`
 
 	tr:hover {
 		background-color: #f5f5f5;
+	}
+
+	.pagination {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 1rem;
+		margin-top: 1.5rem;
+
+		button {
+			padding: 0.5rem 1rem;
+			background: #3498db;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+
+			&:disabled {
+				background: #95a5a6;
+				cursor: not-allowed;
+			}
+		}
 	}
 `;
