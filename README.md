@@ -17,3 +17,22 @@ npm run serve
 cd client
 npm i
 npm run dev
+
+## Для проверки
+
+### Добавление оператора
+
+Добавьте тестового оператора через MongoDB Compass или команду:
+
+bash
+mongosh
+use clinicdb
+db.operators.insertOne({
+email: "admin@clinic.ru",
+password: "secure123",
+fullName: "Иванова Мария Петровна"
+})
+
+### Добавление заявок
+
+Пример заявок лежит в example_mongodb_data_requests.json

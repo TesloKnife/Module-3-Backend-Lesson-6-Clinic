@@ -23,7 +23,7 @@ const LoginContainer = ({ className }) => {
 		try {
 			const result = await login(credentials);
 			if (result.success) {
-				navigate('/'); // Поменять переход на таблицу с записями
+				navigate('/requests');
 			} else {
 				setError(result.message || 'Ошибка авторизации');
 			}
