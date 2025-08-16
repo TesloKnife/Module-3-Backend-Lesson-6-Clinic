@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { login } from '../api/auth';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../context';
 
 const LoginContainer = ({ className }) => {
 	const [credentials, setCredentials] = useState({
@@ -13,6 +14,7 @@ const LoginContainer = ({ className }) => {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const navigate = useNavigate();
+	const { handleLogin } = useAuth();
 
 	// Обработка отправки формы
 	const handleSubmit = async (e) => {
@@ -23,6 +25,7 @@ const LoginContainer = ({ className }) => {
 		try {
 			const result = await login(credentials);
 			if (result.success) {
+				handleLogin(result.operator);
 				navigate('/requests');
 			} else {
 				setError(result.message || 'Ошибка авторизации');
